@@ -21,6 +21,15 @@ export default function AdminAuthors() {
     setOpenDropdownId(openDropdownId === id ? null : id);
   };
 
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Yakin mau hapus data ini?");
+
+    if (confirmDelete) {
+      await deleteBook(id);
+      setBooks(books.filter((book) => book.id !== id));
+    }
+  };
+
   return (
     <>
       <section className="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5">
@@ -150,7 +159,10 @@ export default function AdminAuthors() {
                               </li>
                             </ul>
                             <div className="py-1">
-                              <button className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                              <button
+                                onClick={() => handleDelete(author.id)}
+                                className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                              >
                                 Delete
                               </button>
                             </div>
