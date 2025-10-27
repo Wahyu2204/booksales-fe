@@ -1,6 +1,33 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useDecodeToken, logout } from "../_services/auth";
+import { useEffect } from "react";
 
 export default function AdminLayout() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  const decodedData = useDecodeToken(token);
+
+  useEffect(() => {
+    if (!token || !decodedData || !decodedData?.success) {
+      navigate("/login");
+      return;
+    }
+
+    const role = userInfo?.role;
+    if (role !== "admin") {
+      navigate("/");
+      return;
+    }
+  }, [token, decodedData, navigate]);
+
+  const handleLogout = async () => {
+    if (token) {
+      await logout({ token });
+      localStorage.removeItem("userInfo");
+    }
+    navigate("/login");
+  };
   return (
     <>
       <div className="antialiased bg-gray-50 dark:bg-gray-900">
@@ -78,6 +105,12 @@ export default function AdminLayout() {
                 </svg>
               </button>
 
+              <Link
+                to={"register"}
+                className="text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800"
+              >
+                {userInfo.name}
+              </Link>
               <button
                 type="button"
                 className="flex mx-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
@@ -282,6 +315,14 @@ export default function AdminLayout() {
                   </svg>
                   <span className="ml-3">Help</span>
                 </Link>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center p-2 text-base font-medium text-red-900 rounded-lg transition duration-75 bg-red-900 hover:bg-red-100 dark:hover:bg-red-700 dark:text-white group"
+                >
+                  <span className="ml-3">LogOut</span>
+                </button>
               </li>
             </ul>
           </div>
